@@ -1,4 +1,6 @@
 module.exports = Object.freeze({
+    STORAGE: "https://firebasestorage.googleapis.com",
+
     // Archetype
     EVENT: 0,
     MESSAGE: 1,
