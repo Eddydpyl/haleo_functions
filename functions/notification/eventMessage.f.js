@@ -8,14 +8,22 @@ exports = module.exports = functions.firestore.document(`events/{eventId}/messag
     const message = snapshot.data();
     const store = admin.firestore();
     return store.collection("events").doc(eventId).get().then((snapshot) => {
+        let promises = [];
         const event = snapshot.data();
-        return messaging.sendMessages({
-            topic: event.topic,
-            title: eventMessageTitleText(event.lang, event.name),
-            body: eventMessageBodyText(event.lang, message.type, message.data),
-            type: constants.EVENT,
-            action: constants.SEND_MESSAGE,
-            key: eventId,
+        if (!event.attendees) return null;
+        event.attendees.forEach((uid) => {
+            if (event.user === uid) return;
+            promises.push(store.collection("users").doc(uid).get());
+        });
+        return Promise.all(promises).then(snapshots => {
+            return messaging.sendMessages({
+                users: snapshots.map(snapshot => snapshot.data()),
+                title: eventMessageTitleText(event.lang, event.name),
+                body: eventMessageBodyText(event.lang, message.type, message.data),
+                type: constants.EVENT,
+                action: constants.SEND_MESSAGE,
+                key: eventId,
+            });
         });
     });
 });
