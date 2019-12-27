@@ -12,7 +12,7 @@ exports = module.exports = functions.firestore.document(`events/{eventId}/messag
         const event = snapshot.data();
         if (!event.attendees) return null;
         event.attendees.forEach((uid) => {
-            if (event.user === uid) return;
+            if (message.user === uid) return;
             promises.push(store.collection("users").doc(uid).get());
         });
         return Promise.all(promises).then(snapshots => {
