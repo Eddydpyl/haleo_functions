@@ -11,6 +11,7 @@ module.exports = Object.freeze({
     CLOSE: 0,
     OPEN: 1,
     SEND_MESSAGE: 2,
+    ATTEND: 3,
 
     // Message
     TEXT: 0,

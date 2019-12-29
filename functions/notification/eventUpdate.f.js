@@ -22,6 +22,22 @@ exports = module.exports = functions.firestore.document(`events/{eventId}`).onUp
                 key: eventId,
             });
         });
+    } else if ((before.attendees || []).length < (after.attendees || []).length) {
+        const diff = (after.attendees || []).filter(x => !(before.attendees || []).includes(x));
+        return store.collection("users").doc(diff[0]).get().then((snapshot) => {
+            const attendee = snapshot.data();
+            return store.collection("users").doc(after.user).get().then((snapshot) => {
+                const user = snapshot.data();
+                return messaging.sendMessages({
+                    users: [user],
+                    title: eventJoinTitleText(after.lang),
+                    body: eventJoinBodyText(after.lang, after.name, attendee.name),
+                    type: constants.EVENT,
+                    action: constants.ATTEND,
+                    key: eventId,
+                });
+            });
+        });
     } else return null;
 });
 
@@ -35,4 +51,16 @@ function eventCompleteBodyText(lang, name){
     if (lang === "es")
         return "El evento " + name + " tiene ahora el número necesario de participantes.";
     return "The event " + name + " now has the necessary number of participants.";
+}
+
+function eventJoinTitleText(lang){
+    if (lang === "es")
+        return "¡Alguien se ha apuntado a tu evento!";
+    return "Someone has signed up to your event!";
+}
+
+function eventJoinBodyText(lang, event, user){
+    if (lang === "es")
+        return user + "está interesado en asistir a " + event + ".";
+    return user + "is interest in going to " + event + ".";
 }
