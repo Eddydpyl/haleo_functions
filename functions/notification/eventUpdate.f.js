@@ -61,6 +61,6 @@ function eventJoinTitleText(lang){
 
 function eventJoinBodyText(lang, event, user){
     if (lang === "es")
-        return user + "está interesado en asistir a " + event + ".";
-    return user + "is interest in going to " + event + ".";
+        return user + " está interesad@ en asistir a " + event + ".";
+    return user + " is interest in going to " + event + ".";
 }
